@@ -29,10 +29,11 @@ const WHEEL_ZOOM_SPEED = -0.02;
 export function dragPanInteraction(trace: TraceImpl,
   rect: Rect2D,
   timescale: TimeScale,
-  options:Object) {
+  id: string,
+  options: Object) : Zone {
   return {
+    id,
     area: rect,
-    cursor: 'grab',
     ...options,
     drag: {
       cursorWhileDragging: 'grabbing',
@@ -49,7 +50,11 @@ export function shiftDragPanInteraction(
   timescale: TimeScale,
 ): Zone {
   return dragPanInteraction(trace, rect, timescale,
-    {id: 'drag-pan', keyModifier: 'shift'});
+    'drag-pan',
+    {
+      cursor: 'grab',
+      keyModifier: 'shift',
+    });
 }
 
 export function middleDragPanInteraction(
@@ -58,7 +63,8 @@ export function middleDragPanInteraction(
   timescale: TimeScale,
 ): Zone {
   return dragPanInteraction(trace, rect, timescale,
-    {id: 'mouse-middle-drag-pan', mouseButton: 1});
+     'mouse-middle-drag-pan',
+    {mouseButton: 1});
 }
 
 export function wheelNavigationInteraction(
