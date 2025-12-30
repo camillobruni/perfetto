@@ -25,7 +25,7 @@ import {TraceImpl} from '../../core/trace_impl';
 
 const WHEEL_ZOOM_SPEED = -0.02;
 
-export function dragPanInteraction(
+function dragPanInteraction(
   trace: TraceImpl,
   rect: Rect2D,
   timescale: TimeScale,
