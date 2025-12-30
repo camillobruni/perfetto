@@ -172,10 +172,12 @@ export class ZonedInteractionHandler implements Disposable {
   private zones: ReadonlyArray<Zone> = [];
   private currentGesture?: InProgressGesture;
   private shiftHeld = false;
+  private mouseButton?: MouseButton;
 
   constructor(readonly target: HTMLElement) {
     this.bindEvent(this.target, 'mousedown', this.onMouseDown.bind(this));
     this.bindEvent(document, 'mousemove', this.onMouseMove.bind(this));
+    this.bindEvent(document, 'mouseenter', this.onMouseEnter.bind(this));
     this.bindEvent(document, 'mouseup', this.onMouseUp.bind(this));
     this.bindEvent(document, 'keydown', this.onKeyDown.bind(this));
     this.bindEvent(document, 'keyup', this.onKeyUp.bind(this));
@@ -222,11 +224,9 @@ export class ZonedInteractionHandler implements Disposable {
   private onMouseDown(e: MouseEvent) {
     const mousePositionClient = new Vector2D({x: e.clientX, y: e.clientY});
     const mouse = mousePositionClient.sub(this.target.getBoundingClientRect());
+    this.mouseButton = e.button;
     const zone = this.findZone(
-      (z) =>
-        (z.drag || z.onClick) &&
-        this.hitTestZone(z, mouse) &&
-        (z.mouseButton ?? 0) === e.button,
+      (z) => (z.drag || z.onClick) && this.hitTestZone(z, mouse),
     );
     if (zone) {
       this.currentGesture = {
@@ -244,6 +244,7 @@ export class ZonedInteractionHandler implements Disposable {
     const mousePosition = mousePositionClient.sub(
       this.target.getBoundingClientRect(),
     );
+    // If
     this.currentMousePosition = mousePosition;
     this.updateCursor();
 
@@ -276,10 +277,20 @@ export class ZonedInteractionHandler implements Disposable {
     }
   }
 
+  private onMouseEnter(e: MouseEvent) {
+    if (this.currentGesture && e.buttons === 0) {
+      // Chrome does not emit a mouseup event if the mouse is release outside
+      // the window if other than the left mouse buttons are pressed.
+      // Treat the first mouse-enter without buttons as a mouse up to
+      // compensate for this.
+      this.onMouseUp(e);
+    }
+  }
+
   private onMouseUp(e: MouseEvent) {
     const mousePositionClient = new Vector2D({x: e.clientX, y: e.clientY});
     const mouse = mousePositionClient.sub(this.target.getBoundingClientRect());
-
+    this.mouseButton = undefined;
     const gesture = this.currentGesture;
 
     if (gesture) {
@@ -310,6 +321,7 @@ export class ZonedInteractionHandler implements Disposable {
   }
 
   private onKeyUp(e: KeyboardEvent) {
+    console.log(e);
     this.shiftHeld = e.shiftKey;
     this.updateCursor();
   }
@@ -401,6 +413,10 @@ export class ZonedInteractionHandler implements Disposable {
   // Test whether a point hits a zone.
   private hitTestZone(zone: Zone, x: Point2D): boolean {
     const rect = Rect2D.fromPointAndSize(zone.area);
-    return rect.containsPoint(x) && (!zone.keyModifier || this.shiftHeld);
+    return (
+      rect.containsPoint(x) &&
+      (!zone.keyModifier || this.shiftHeld) &&
+      (zone.mouseButton === undefined || zone.mouseButton === this.mouseButton)
+    );
   }
 }
