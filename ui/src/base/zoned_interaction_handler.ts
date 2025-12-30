@@ -113,6 +113,21 @@ export interface DragConfig {
   onDragEnd?(e: DragEvent, element: HTMLElement): void;
 }
 
+// Mouse click event button codes.
+// See https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
+export enum MouseButton {
+  MAIN = 0,
+  AUXILIARY = 1,
+  SECONDARY = 2,
+  FOURTH = 3,
+  FIFTH = 4,
+  LEFT = MAIN,
+  MIDDLE = AUXILIARY,
+  RIGHT = SECONDARY,
+  BACK = FOURTH,
+  FORWARD = FIFTH,
+}
+
 export interface Zone {
   // Unique ID for this zone. This is used to coordinate long events such as
   // drag event callbacks between update cycles.
@@ -128,9 +143,9 @@ export interface Zone {
   // zone is effectively invisible to interactions.
   readonly keyModifier?: 'shift';
 
-  // Optional: If present, this zone will only respond to clicks with this specific mouse button.
-  // Defaults to 0 (left button) if not specified.
-  readonly mouseButton?: number;
+  // Optional: If present, this zone will only respond to clicks with this
+  // specific mouse button. Defaults to 0 (left button) if not specified.
+  readonly mouseButton?: MouseButton;
 
   // Optional: If present, this zone will respond to drag events.
   readonly drag?: DragConfig;
