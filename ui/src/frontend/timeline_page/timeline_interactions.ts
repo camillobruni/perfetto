@@ -25,16 +25,15 @@ import {TraceImpl} from '../../core/trace_impl';
 
 const WHEEL_ZOOM_SPEED = -0.02;
 
-export function shiftDragPanInteraction(
-  trace: TraceImpl,
+
+export function dragPanInteraction(trace: TraceImpl,
   rect: Rect2D,
   timescale: TimeScale,
-): Zone {
+  options:Object) {
   return {
-    id: 'drag-pan',
     area: rect,
     cursor: 'grab',
-    keyModifier: 'shift',
+    ...options,
     drag: {
       cursorWhileDragging: 'grabbing',
       onDrag: (e) => {
@@ -42,6 +41,24 @@ export function shiftDragPanInteraction(
       },
     },
   };
+}
+
+export function shiftDragPanInteraction(
+  trace: TraceImpl,
+  rect: Rect2D,
+  timescale: TimeScale,
+): Zone {
+  return dragPanInteraction(trace, rect, timescale,
+    {id: 'drag-pan', keyModifier: 'shift'});
+}
+
+export function middleDragPanInteraction(
+  trace: TraceImpl,
+  rect: Rect2D,
+  timescale: TimeScale,
+): Zone {
+  return dragPanInteraction(trace, rect, timescale,
+    {id: 'mouse-middle-drag-pan', mouseButton: 1});
 }
 
 export function wheelNavigationInteraction(

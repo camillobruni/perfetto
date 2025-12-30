@@ -128,6 +128,10 @@ export interface Zone {
   // zone is effectively invisible to interactions.
   readonly keyModifier?: 'shift';
 
+  // Optional: If present, this zone will only respond to clicks with this specific mouse button.
+  // Defaults to 0 (left button) if not specified.
+  readonly mouseButton?: number;
+
   // Optional: If present, this zone will respond to drag events.
   readonly drag?: DragConfig;
 
@@ -204,7 +208,10 @@ export class ZonedInteractionHandler implements Disposable {
     const mousePositionClient = new Vector2D({x: e.clientX, y: e.clientY});
     const mouse = mousePositionClient.sub(this.target.getBoundingClientRect());
     const zone = this.findZone(
-      (z) => (z.drag || z.onClick) && this.hitTestZone(z, mouse),
+      (z) =>
+        (z.drag || z.onClick) &&
+        this.hitTestZone(z, mouse) &&
+        (z.mouseButton ?? 0) === e.button,
     );
     if (zone) {
       this.currentGesture = {

@@ -63,6 +63,7 @@ import {
 import {renderFlows} from './flow_events_renderer';
 import {generateTicks, getMaxMajorTicks, TickType} from './gridline_helper';
 import {
+  middleDragPanInteraction,
   shiftDragPanInteraction,
   wheelNavigationInteraction,
 } from './timeline_interactions';
@@ -498,6 +499,7 @@ export class TrackTreeView implements m.ClassComponent<TrackTreeViewAttrs> {
 
     assertExists(this.interactions).update([
       shiftDragPanInteraction(trace, timelineRect, timescale),
+      middleDragPanInteraction(trace, timelineRect, timescale),
       areaSelection !== false && {
         id: 'start-edit',
         area: new Rect2D({
